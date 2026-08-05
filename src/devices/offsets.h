@@ -54,6 +54,16 @@ struct kernel_offsets {
   .task_comm=0x830, .task_tasks=0x550, .task_seccomp=0x8E8, \
   .mm_owner=0x2B0
 
+/* Nothing Phone 1 / Spacewar — 5.4.302, VA_BITS=39, pahole-extracted */
+#define STRUCT_OFFSETS_5_4 \
+  .task_prio=0x7C, .task_normal_prio=0x84, .task_sched_task_group=0x348, \
+  .task_pi_lock=0x8C4, .task_pi_waiters=0x8D0, \
+  .task_pi_top_task=0x8E0, .task_pi_blocked_on=0x8E8, \
+  .task_pid=0x638, .task_tgid=0x63C, .task_real_parent=0x648, \
+  .task_atomic_flags=0x600, .task_real_cred=0x7E8, .task_cred=0x7F0, \
+  .task_comm=0x800, .task_tasks=0x538, .task_seccomp=0x8A0, \
+  .mm_owner=0x320
+
 static const struct kernel_offsets known_offsets[] = {
   /* Add new devices by creating src/devices/<name>/offsets.h */
 #include "ace6t/offsets.h"
@@ -62,6 +72,7 @@ static const struct kernel_offsets known_offsets[] = {
 #include "findx9ultra/offsets.h"
 #include "pudding/offsets.h"
 #include "pad4pro/offsets.h"
+#include "spacewar/offsets.h"
   { .uname_r = NULL }
 };
 
