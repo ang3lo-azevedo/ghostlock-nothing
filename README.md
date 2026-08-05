@@ -1,184 +1,82 @@
-# GhostLock — OnePlus Locked Bootloader Jailbreak
+# GhostLock — Nothing Phone (1) Port
 
-Kernel exploit for OnePlus/OPPO/realme devices with locked bootloader. Achieves root + KernelSU installation without unlocking bootloader or modifying boot image. Runtime auto-detection of kernel version with multi-device offset table.
+Fork of [JoinChang/ghostlock-oneplus](https://github.com/JoinChang/ghostlock-oneplus) adding support for the **Nothing Phone (1)** (Spacewar, SM7325).
 
-<p align="center">
-  <img src="assets/screenshot.jpg" width="300" alt="GhostLock running on OnePlus Ace 6T with KernelSU (LKM, Jailbreak mode)">
-</p>
+Original: Kernel exploit for OnePlus/OPPO/realme devices with locked bootloader. Achieves root + KernelSU installation without unlocking bootloader or modifying boot image. Runtime auto-detection of kernel version with multi-device offset table.
 
 ## Vulnerability
 
 **CVE-2026-43499** — Futex PI (Priority Inheritance) Use-After-Free
 
-Affects Linux kernel 2.6.39 ~ 7.1. Fixed in mainline 7.1 (commit `3bfdc63936dd`). Android GKI 6.12.x remains vulnerable.
+Affects Linux kernel 2.6.39 ~ 7.1. Fixed in mainline 7.1 (commit `3bfdc63936dd`).
 
 The `pselect6` syscall copies `fd_set` data onto the kernel stack. When combined with the futex PI waiter mechanism, a freed stack frame can be reclaimed as an `rt_mutex_waiter` structure. The rb-tree rebalance during PI chain walk then writes controlled values to arbitrary kernel addresses.
 
 ## Supported Devices
 
-### Verified
+### Working (upstream)
 
 | Device | SoC | Kernel | Status |
 |--------|-----|--------|--------|
-| OnePlus Ace 6T (PLR110) | SM8845 | `6.12.38-...-ab14275539` | **Working** |
-| OnePlus Ace 6T (PLR110) | SM8845 | `6.12.38-...-ab14552068` | **Working** |
-| OnePlus 15 (CPH2749) | SM8850 | `6.12.23-...-ab14541642` | **Working** |
-| Xiaomi 17 (pudding) | SM8850 | `6.12.23-...-abogki463945075` | **Working** |
+| OnePlus Ace 6T (PLR110) | SM8845 | `6.12.38` | **Working** |
+| OnePlus 15 (CPH2749) | SM8850 | `6.12.23` | **Working** |
+| Xiaomi 17 (pudding) | SM8850 | `6.12.23` | **Working** |
+| OnePlus 13 (IN2060) | SM8750 | `6.6.89` | **Working** |
 
-### Offsets Extracted (pending device test)
+### Work in Progress (this fork)
 
-| Device | SoC | Kernel | Notes |
-|--------|-----|--------|-------|
-| OnePlus 15T (PLZ110) | SM8845 | `6.12.38-...-ab14552068` | Same kernel as Ace 6T. QEMU verified SP diff=-64. |
-| OnePlus 13 (IN2060) | SM8750 | `6.6.89-...-abogki446052083` | Kernel 6.6: uses `STRUCT_OFFSETS_6_6`. SP diff=-64. Use `PSELECT_SHIFT=-2`. UMH root available (C ashmem). |
-
-### Not Feasible (stack layout incompatible)
-
-The pselect stack overlay only works when the freed `rt_mutex_waiter` lands within the user-controllable region of the `stack_fds` buffer. Where the waiter lands is determined by the compiler output (PGO + LTO), not the kernel version. See [Stack Layout](#stack-layout-feasibility) for details.
-
-| Device | SoC | Kernel | Reason |
+| Device | SoC | Kernel | Status |
 |--------|-----|--------|--------|
-| OPPO Find X9 Ultra | SM8750 | 6.12.58 | SP diff=+32 (vs -64 on Ace 6T). Intermediate caller frame sizes differ due to PGO profiles. SHIFT=-8 required but rb_tree fields land on non-zero `fds` pointers. No safe shift exists. |
-| OPPO Find X7 | — | 6.1.157 | 6.1 compiler output: waiter at word 13 |
-| realme RMX5070 | SM6650 | 6.1.141 | 6.1 compiler output: waiter at word 13 |
-| realme RMX3852 | SM8635 | 6.1.141 | Same 6.1 branch as RMX5070 |
-| OnePlus 13R / Ace 5 | SM8635 | 6.1.x | Same 6.1 branch |
-| OPPO Pad 5 (OPD2502) | MT6878 | 6.1.134 | Same 6.1 branch |
-| iQOO Z9 5G | — | 5.15.178 | kernel 5.15 uses `plist_node` (not `rb_node`), incompatible waiter struct. Also not an OPLUS device (vivo). |
+| **Nothing Phone (1)** | SM7325 | `5.4.302` | Struct offsets extracted. Global symbols + pselect layout TODO. |
 
-## Exploit Flow
+### Key differences for 5.4
 
-Two root paths, selected automatically based on device capabilities:
+- `rt_mutex_waiter` is 0x50 bytes (vs 0x70+ on 6.x) — smaller waiter means different stack layout
+- `task_struct` layout significantly different (thread_info is 40 bytes, KABI reserves, custom configs)
+- `CONFIG_FAIR_GROUP_SCHED=n`, `CONFIG_SCHED_CORE=n` — removes fields from task_struct
+- `CONFIG_ASHMEM=y` (C ashmem) — UMH root path may be available
+- `CONFIG_CONFIGFS_FS=y`, `CONFIG_FUTEX_PI=y` — required kernel features present
+- Struct offsets extracted via **pahole** from the actual kernel build (spacewar_defconfig)
 
-### Path A: UMH Root (preferred, C ashmem devices)
+## Build
 
-Requires `off_ashmem_misc_fops != 0` (C ashmem with static miscdevice in BSS).
-
-```
-PI write (mode=4)  →  redirect miscdevice fops to fake fops (via W0 pi_tree)
-                      configfs r/w established
-                   →  pipe physrw (1-byte precise kernel r/w)
-                   →  SELinux enforcing = 0 (single byte, no policycap corruption)
-                   →  UMH: inject work_struct into system_unbound_wq
-                      kernel executes /data/local/tmp/a/e --umh as UID 0
-                   →  root script → ksud late-load → KSU installed
-```
-
-Advantages over Path B:
-- **1-byte SELinux write** — does not corrupt `selinux_state.policycap` (fixes network issues on OnePlus 13)
-- **No perf_event_open** — works under seccomp restrictions
-- **No credential patching** — avoids modifying live task_struct
-
-Currently available on: **OnePlus 13** (kernel 6.6, C ashmem).
-Not available on Rust ashmem devices (6.12 GKI) — the miscdevice is heap-allocated, address not predictable at compile time.
-
-### Path B: Direct PI Write (fallback, all devices)
-
-Used when UMH offsets or C ashmem misc_fops are not available.
-
-```
-Write 1 (mode=1)  →  SELinux enforcing = 0
-                      (low byte of kernel ptr = 0x00, 8-byte write)
-
-Write 2 (mode=2)  →  task->cred = init_cred
-                      (uid=0, all capabilities)
-
-Root shell         →  ksud late-load (KernelSU LKM)
-                   →  su -c load_policy (fix SELinux policycap)
-                   →  dynamic manager registration
-```
-
-### Bootstrap Mode (phone standalone)
-
-```
-App (seccomp)  →  Write 1 (no perf needed)
-               →  mini-adb connect TCP (port from /data/local/tmp/a/adb_port, default 5555)
-               →  adb shell: full exploit (perf works, no seccomp)
-               →  root → KSU → network fix
-```
-
-### Auto-Boot (via ReSukiSU integration)
-
-```
-BOOT_COMPLETED → BootCompletedReceiver
-  ├─ su available → skip (soft reboot / already rooted)
-  └─ no root → GhostlockService → setsid exploit --bootstrap
-```
-
-## Stack Layout Feasibility
-
-With `NFDS=320`, the kernel's `core_sys_select` allocates a 256-byte `stack_fds` buffer:
-
-```
-stack_fds:  0    5    10   14 | 15   20   25   29
-            ├─in─┤─out─┤─ex──┤ ├res_in┤res_out┤res_ex┤
-            ◄── USER CONTROLLED ──►│◄── KERNEL ZEROED ──►
-```
-
-The exploit writes fake waiter fields (task, lock) into the fd_set input bitmaps. For this to work, the waiter's `task` and `lock` fields must fall in the controllable zone (words 0-14).
-
-```
-Ace 6T ✅ (waiter at word 2):
-  ░░████████████████░░│░░░░░░░░░░░░░░░░░░
-    ▲waiter      t  l │
-    task/lock controllable
-
-RMX5070 ❌ (waiter at word 13):
-  ░░░░░░░░░░░░░████│██████████████░░░░░░
-                 ▲  │    t     l
-               waiter  task/lock ZEROED
-```
-
-**Feasibility rule**: waiter word + 11 (lock offset in rt_waiter_node) must be ≤ 14. Maximum feasible waiter word is **3**.
-
-The waiter position is determined by the compiler's stack frame layout (PGO + LTO + BOLT optimization profiles), which varies per SoC branch. Same kernel version can have different layouts on different SoCs.
-
-### kernel_phys_load
-
-All kernel writes go through the image's linear-map alias:
-
-```
-data_addr(x) = PAGE_OFFSET + (kernel_phys_load - PHYS_OFFSET) + (x - KIMAGE_TEXT_BASE)
-```
-
-The bootloader picks `kernel_phys_load`, so it varies per SoC and is not in
-boot.img or the DT. Per-device field in `struct kernel_offsets`; 0 = use the
-`target.h` default.
-
-| SoC | kernel_phys_load |
-|-----|------------------|
-| SM8845 (Ace 6T, 15T) | `0xa8000000` |
-| SM8750 (OnePlus 13) | `0xa8000000` |
-| SM8850 (OnePlus 15) | `0xc7800000` |
-
-**A wrong value fails silently** — the write still lands in mapped RAM, so
-there is no crash and no effect. Don't mistake it for a `PSELECT_SHIFT`
-problem. Read it on a rooted unit of the same model (`Kernel code` starts at
-`_stext`; `_text` is `0x10000` lower):
+### Nothing Phone (1)
 
 ```bash
-su -c 'grep -i "Kernel code" /proc/iomem'   # c7810000-... -> 0xc7800000
+make TARGET=spacewar ANDROID_NDK_HOME=/path/to/ndk
 ```
 
-### PSELECT_SHIFT
-
-Different kernels place the waiter at different positions within the controllable zone. Use `PSELECT_SHIFT` to adjust:
+### Other devices (upstream)
 
 ```bash
-# Default (Ace 6T + OnePlus 15, 6.12): shift=0
-/data/local/tmp/a/e
-
-# OnePlus 13 (6.6): shift=-2
-PSELECT_SHIFT=-2 /data/local/tmp/a/e
-
-# Override kernel_phys_load for new SoCs (when /proc/iomem is not accessible):
-KPHYS=0xc7800000 /data/local/tmp/a/e
+make ANDROID_NDK_HOME=/path/to/ndk
 ```
 
-`check_feasibility.py`'s waiter word is unreliable: its frame arithmetic is
-right, but the struct offsets it infers from zero-stores are not (on OnePlus 15
-it gives word 3; measured is word 2). A wrong shift costs a kernel panic per
-guess, so measure it on a rooted unit instead:
+## Status — Nothing Phone (1)
+
+- [x] Kernel confirmed vulnerable (`remove_waiter` uses `current` instead of `waiter->task`)
+- [x] Struct offsets extracted via pahole (task_struct, rt_mutex_waiter, mm_struct)
+- [x] Device directory + target.h created (`src/devices/spacewar/`)
+- [x] `STRUCT_OFFSETS_5_4` macro defined in `src/devices/offsets.h`
+- [ ] Global symbol offsets (kallsyms) — needs `/proc/kallsyms` dump from device
+- [ ] pselect stack layout feasibility — needs kprobe measurement on device
+- [ ] Source adaptation for 5.4 API differences
+- [ ] Device test
+
+## Setup
+
+### Prerequisites
+
+- ADB access to the device
+- **ksud** for KernelSU management (already present if running a KSU kernel)
+- Pull `/proc/kallsyms` to extract global symbol offsets:
+  ```bash
+  adb shell su -c 'cat /proc/kallsyms' > kallsyms.txt
+  ```
+
+### Determining pselect stack layout
+
+On a rooted device, use kprobes to find the waiter position:
 
 ```bash
 echo 'p:ds do_select fdsin=+0(%x1)' >> /sys/kernel/tracing/kprobe_events
@@ -187,57 +85,12 @@ echo 'p:rw rt_mutex_wait_proxy_lock waiter=%x2' >> /sys/kernel/tracing/kprobe_ev
 #   PSELECT_SHIFT = ((waiter & 0x3fff) - (fdsin & 0x3fff)) / 8 - 2
 ```
 
-## Build
+### kernel_phys_load
 
 ```bash
-NDK=/path/to/android-ndk
-$NDK/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android35-clang \
-  -O2 -Wall -Isrc/core -Isrc/devices -DTARGET_CONFIG_H="target.h" \
-  src/core/main.c src/core/util.c src/core/slide.c \
-  src/core/fops.c src/core/pipe_physrw.c src/core/root.c \
-  src/core/miniadb.c src/core/umh_root.c \
-  -o ghostlock -fPIE -pie -pthread
+su -c 'grep -i "Kernel code" /proc/iomem'
+# Subtract _stext-_text (usually 0x10000)
 ```
-
-## Prerequisites
-
-### ksud (required for KSU installation)
-
-GhostLock only provides root. KernelSU installation depends on **ksud** — a binary that contains embedded `kernelsu.ko` modules for each KMI version. The root script finds ksud on device and calls `ksud late-load --kmi android16-6.12`.
-
-| Method | Steps |
-|--------|-------|
-| **ReSukiSU APK** (recommended) | Install [ReSukiSU](https://github.com/ReSukiSU/ReSukiSU) or this [fork](https://github.com/JoinChang/ReSukiSU). Official release bundles `libksud.so`. |
-| **CI release** | Download `ksud-aarch64-linux-android.zip` from [ReSukiSU CI](https://github.com/cctv18/ReSukiSU_CI/releases) |
-
-> Without ksud, the exploit achieves root (uid=0) but KSU won't be installed and `su` won't persist.
-
-## Setup (one-time)
-
-```bash
-# Enable ADB TCP (use any port)
-adb tcpip 5555
-
-# Push exploit binary and ADB key
-adb push ghostlock /data/local/tmp/a/e && adb shell chmod 755 /data/local/tmp/a/e
-adb push ~/.android/adbkey /data/local/tmp/a/adbkey
-
-# If using a non-default ADB port (e.g. 23946):
-adb shell "echo 23946 > /data/local/tmp/a/adb_port"
-```
-
-After first successful jailbreak, `persist.adb.tcp.port` is set via `resetprop` — subsequent boots are fully automatic.
-
-## Usage
-
-```bash
-/data/local/tmp/a/e                        # Full exploit (adb shell)
-/data/local/tmp/a/e --bootstrap            # Phone standalone (app context)
-/data/local/tmp/a/e --write1               # SELinux disable only
-PSELECT_SHIFT=-2 /data/local/tmp/a/e       # Override stack layout shift
-```
-
-> **Important**: Run within 30 seconds of boot for best KernelSnitch timing reliability.
 
 ## Adding New Devices / Kernel Versions
 
@@ -258,31 +111,14 @@ python tools/extract_btf.py kernel  # 57 offsets, auto-validated
 # 4. Add to offsets.h, rebuild
 ```
 
-### Coverage: 103/103 offsets from boot.img
-
-| Source | Count | Method |
-|--------|-------|--------|
-| kallsyms (global symbols) | 28 | `extract_target.py` |
-| BTF (struct fields) | 57 | `extract_btf.py` |
-| Derived (same struct, different usage) | 9 | Automatic |
-| Constants (fixed values) | 12 | No extraction needed |
-
 ### Adapting to non-OnePlus devices
 
 The core exploit is device-agnostic. Adaptation may require:
 - Different `VA_BITS` (48 vs 39) → update `target.h` memory layout
 - Different `kernel_phys_load` → read from `/proc/iomem` or use `KPHYS=` env var
-- Different timing parameters → tune `common.h`
-- Different ashmem implementation (C vs Rust) → C ashmem enables UMH path; Rust ashmem falls back to W1+W2
-- Different `PSELECT_SHIFT` → determine via QEMU kprobe test
-- Different struct offsets (6.6 vs 6.12) → use `STRUCT_OFFSETS_6_6` or `STRUCT_OFFSETS_6_12` in device entry
-
-### UMH root requirements
-
-The UMH (call_usermodehelper) root path requires:
-- `off_system_unbound_wq` and `off_call_usermodehelper_exec_work` from kallsyms
-- `off_ashmem_misc_fops` = `ashmem_misc + 0x10` (C ashmem only, miscdevice.fops in BSS)
-- Rust ashmem (GKI 6.12) allocates miscdevice on the heap → address not predictable → UMH unavailable
+- Different struct offsets → use `STRUCT_OFFSETS_5_4`, `STRUCT_OFFSETS_6_6`, or `STRUCT_OFFSETS_6_12` in device entry
+- Different `PSELECT_SHIFT` → determine via QEMU kprobe test or on-device measurement
+- Different ashmem implementation (C vs Rust) → C ashmem enables UMH path
 
 ## Files
 
@@ -291,16 +127,17 @@ The UMH (call_usermodehelper) root path requires:
 | `src/core/main.c` | Exploit entry, Write 1/2, UMH path, bootstrap, root script |
 | `src/core/fops.c` | pselect route, PI write mechanism, CFI stage |
 | `src/core/util.c` | Heap spray, kernelsnitch, slab drain, payload setup |
-| `src/core/pipe_physrw.c` | Pipe buffer-based physical memory r/w (upgrades configfs r/w) |
-| `src/core/umh_root.c` | UMH root via workqueue injection + `--umh` handler |
+| `src/core/pipe_physrw.c` | Pipe buffer-based physical memory r/w |
+| `src/core/umh_root.c` | UMH root via workqueue injection |
 | `src/core/miniadb.c` | Mini ADB client (TCP + RSA auth) |
 | `src/core/common.h` | Timing parameters, macros |
-| `src/core/target.h` | Memory layout, struct field defaults (6.12) |
-| `src/core/runtime_struct_offsets.h` | Per-device struct field override (6.6 vs 6.12) |
-| `src/devices/offsets.h` | Aggregates all device offset tables + `STRUCT_OFFSETS_*` macros |
-| `src/devices/<device>/offsets.h` | Per-device kernel offset entries |
+| `src/core/target.h` | Default target (6.12) |
+| `src/core/runtime_struct_offsets.h` | Per-device struct field override |
+| `src/devices/offsets.h` | Aggregated offset tables + `STRUCT_OFFSETS_*` macros |
+| `src/devices/spacewar/offsets.h` | Nothing Phone (1) offsets entry |
+| `src/devices/spacewar/target.h` | Nothing Phone (1) target definitions |
 | `src/core/slide.c` | SLIDE kernel address leak |
-| `src/core/root.c` | Root shell setup (direct cred patching via pipe physrw) |
+| `src/core/root.c` | Root shell setup |
 | `tools/extract_target.py` | Offset extraction from kallsyms |
 | `tools/extract_btf.py` | Struct offset extraction from BTF |
 | `tools/check_feasibility.py` | Stack layout feasibility checker |
@@ -308,3 +145,9 @@ The UMH (call_usermodehelper) root path requires:
 ## License
 
 For authorized security research and educational purposes only.
+
+## Credits
+
+- [JoinChang/ghostlock-oneplus](https://github.com/JoinChang/ghostlock-oneplus) — original exploit
+- [NebuSec/CyberMeowfia](https://github.com/NebuSec/CyberMeowfia) — GhostLock exploit PoC
+- [William24hmar/nothing_android_kernel_sm7325](https://github.com/William24hmar/nothing_android_kernel_sm7325) — KernelSU-SUSFS base
