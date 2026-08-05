@@ -24,6 +24,7 @@ CVE-2026-43499 (GhostLock): use-after-free in the Linux kernel rtmutex futex PI 
 - [ ] pselect stack layout (need on-device kprobes)
 - [ ] Source adaptation for 5.4
 - [ ] Device test
+- [ ] APK wrapper app
 
 ## Build
 
