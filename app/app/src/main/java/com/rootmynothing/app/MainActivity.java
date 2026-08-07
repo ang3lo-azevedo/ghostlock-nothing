@@ -29,6 +29,8 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import android.graphics.Typeface;
+import java.io.File;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -68,6 +70,8 @@ public class MainActivity extends Activity {
     private Button runButton;
     private Button copyButton;
     private View rootView;
+    private TextView titleText;
+    private TextView logTitleText;
 
     /**
      * Mirrors the offset tables under src/kernels: only these uname builds are supported.
@@ -180,6 +184,8 @@ public class MainActivity extends Activity {
         getWindow().setNavigationBarColor(android.graphics.Color.BLACK);
 
         rootView = findViewById(R.id.root);
+        titleText = findViewById(R.id.titleText);
+        logTitleText = findViewById(R.id.logTitleText);
         deviceInfo = findViewById(R.id.deviceInfo);
         statusInfo = findViewById(R.id.statusInfo);
         statusDot = findViewById(R.id.statusDot);
@@ -195,6 +201,8 @@ public class MainActivity extends Activity {
         applyKernelStatus();
         setRunState(RunState.IDLE, getString(R.string.status_idle));
 
+        applyDotFont();
+
         runButton.setOnClickListener(v -> startExploit());
         copyButton.setOnClickListener(v -> copyLogs());
     }
@@ -203,6 +211,28 @@ public class MainActivity extends Activity {
     protected void onDestroy() {
         worker.shutdownNow();
         super.onDestroy();
+    }
+
+    private void applyDotFont() {
+        String[] ndotPaths = {
+            "/system/fonts/NDot57.ttf",
+            "/system/fonts/NDot-57.ttf",
+            "/system/fonts/Ndot57.ttf",
+            "/product/fonts/NDot57.ttf",
+        };
+        Typeface dotFont = null;
+        for (String path : ndotPaths) {
+            File f = new File(path);
+            if (f.exists()) {
+                dotFont = Typeface.createFromFile(f);
+                break;
+            }
+        }
+        if (dotFont == null) {
+            dotFont = getResources().getFont(R.font.dot_matrix);
+        }
+        titleText.setTypeface(dotFont);
+        logTitleText.setTypeface(dotFont);
     }
 
     private void applyWindowInsetsPadding() {
