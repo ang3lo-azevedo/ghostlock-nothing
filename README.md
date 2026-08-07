@@ -20,8 +20,9 @@ CVE-2026-43499 (GhostLock): use-after-free in the Linux kernel rtmutex futex PI 
 - [x] Kernel confirmed vulnerable
 - [x] Struct offsets extracted (pahole, 5.4 spacewar_defconfig)
 - [x] Device target and offsets (`src/devices/spacewar/`)
-- [ ] Kallsyms offsets (need dump from device)
-- [ ] pselect stack layout (need on-device kprobes)
+- [x] Kallsyms offsets (dumped from live device)
+- [x] kernel_phys_load confirmed (0xa007f000)
+- [ ] pselect stack layout (kprobes set up, needs PI futex trigger)
 - [ ] Source adaptation for 5.4
 - [ ] Device test
 - [ ] APK wrapper app (base on [ghostlock-app](https://github.com/YuKongA/ghostlock-app))

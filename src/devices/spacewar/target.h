@@ -18,10 +18,10 @@
 #define BUILD_FINGERPRINT "nothing/ghostlock/spacewar"
 
 /* VA_BITS=39 memory layout */
-#define KIMAGE_TEXT_BASE 0xffffff8010000000ULL  /* TODO: verify */
+#define KIMAGE_TEXT_BASE 0xffffff8010000000ULL  /* compile-time _text (without KASLR) */
 #define P0_PAGE_OFFSET 0xffffff8000000000ULL
 #define P0_PHYS_OFFSET 0x80000000ULL
-#define P0_KERNEL_PHYS_LOAD 0x80000000ULL        /* TODO: from /proc/iomem */
+#define P0_KERNEL_PHYS_LOAD 0xa007f000ULL        /* /proc/iomem Kernel code 0xa0080000 - 0x1000 */
 #define KERNELSNITCH_IDENTITY_START 0xffffff8000000000ULL
 #define KERNELSNITCH_IDENTITY_END   0xffffff8c00000000ULL
 #define DIRECT_MAP_BASE 0xffffff8000000000ULL
