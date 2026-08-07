@@ -1,1 +1,2 @@
-# Keep default rules empty for now.
+-keep class com.ghostlock.app.MainActivity { *; }
+-keep class com.ghostlock.app.SupportedKernels { *; }
