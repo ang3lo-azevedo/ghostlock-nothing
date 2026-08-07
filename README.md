@@ -59,7 +59,7 @@ The exploit source assumes 6.x kernel APIs. Known 5.4 differences:
 
 - `configfs_read_file` / `configfs_write_bin_file` (not `configfs_bin_read_iter` / `configfs_bin_write_iter`)
 - `generic_file_splice_read` (not `copy_splice_read`)
-- C ashmem — direct symbols, not Rust-mangled
+- C ashmem: direct symbols, not Rust-mangled
 - `ashmem_show_fdinfo` doesn't exist on 5.4
 - `rt_mutex_waiter` is 0x50 bytes (vs 0x70+ on 6.x)
 
