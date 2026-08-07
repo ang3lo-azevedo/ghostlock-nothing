@@ -25,8 +25,12 @@ The exploit then uses KernelSU's late-load mechanism to install a kernel module,
 | Nothing Phone (1) | SM7325 | 5.4.302 | In progress |
 
 - [x] Kernel confirmed vulnerable
-- [x] Struct offsets extracted
+- [x] Struct offsets extracted (pahole, `lahaina_QGKI.config`)
+- [x] Device target and offsets (`src/devices/spacewar/`)
 - [x] APK builds and installs
+- [ ] Kallsyms from stock kernel (need vulnerable boot.img flashed)
+- [ ] `PSELECT_SHIFT` (need stock kernel + kprobes)
+- [ ] 5.4 source adaptation (configfs, splice, ashmem API differences)
 - [ ] Exploit working end-to-end
 
 ## Build
@@ -38,6 +42,16 @@ make TARGET=spacewar ANDROID_NDK_HOME=/path/to/ndk
 # APK
 cd app && ./gradlew :app:assembleRelease
 ```
+
+## 5.4 API differences
+
+The exploit source assumes 6.x kernel APIs. Known 5.4 differences:
+
+- `configfs_read_file` / `configfs_write_bin_file` (not `configfs_bin_read_iter` / `configfs_bin_write_iter`)
+- `generic_file_splice_read` (not `copy_splice_read`)
+- C ashmem: direct symbols, not Rust-mangled
+- `ashmem_show_fdinfo` does not exist on 5.4
+- `rt_mutex_waiter` is 0x50 bytes (vs 0x70+ on 6.x)
 
 ## Credits
 
