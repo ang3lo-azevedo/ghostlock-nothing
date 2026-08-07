@@ -24,7 +24,7 @@ CVE-2026-43499 (GhostLock): use-after-free in the Linux kernel rtmutex futex PI 
 - [ ] pselect stack layout (need on-device kprobes)
 - [ ] Source adaptation for 5.4
 - [ ] Device test
-- [ ] APK wrapper app (base on [Root-My-Pixel](https://github.com/alex193a/Root-My-Pixel), uses Shizuku to push binary without root)
+- [ ] APK wrapper app (base on [ghostlock-app](https://github.com/YuKongA/ghostlock-app))
 
 ## Build
 
@@ -71,6 +71,7 @@ Create `src/devices/<name>/offsets.h` and `src/devices/<name>/target.h`. Use `ST
 
 - [JoinChang/ghostlock-oneplus](https://github.com/JoinChang/ghostlock-oneplus)
 - [NebuSec/CyberMeowfia](https://github.com/NebuSec/CyberMeowfia)
+- [YuKongA/ghostlock-app](https://github.com/YuKongA/ghostlock-app)
 - [BuSung-dev/Root-My-Galaxy](https://github.com/BuSung-dev/Root-My-Galaxy)
 - [BuSung-dev/Root-My-Galaxy-Payloads](https://github.com/BuSung-dev/Root-My-Galaxy-Payloads)
 - [NothingOSS/android_kernel_msm-5.4_nothing_sm7325](https://github.com/NothingOSS/android_kernel_msm-5.4_nothing_sm7325)
