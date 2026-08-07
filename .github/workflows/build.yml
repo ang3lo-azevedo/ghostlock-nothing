@@ -63,5 +63,9 @@ jobs:
         with:
           tag_name: v${{ steps.version.outputs.code }}
           name: v${{ steps.version.outputs.code }}
+          body: |
+            Root My Nothing APK — CVE-2026-43499 (GhostLock) exploit for Nothing Phone (1).
+
+            **Built from commit:** ${{ github.sha }}
           files: app/app/build/outputs/apk/release/*.apk
           make_latest: true
