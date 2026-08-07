@@ -2,7 +2,7 @@ plugins {
     id 'com.android.application'
 }
 
-def appName = 'Root My Nothing'
+def appName = 'RootMyNothing'
 def appVersionName = '1.0'
 
 def gitVersionCode
@@ -104,5 +104,5 @@ tasks.named('preBuild') {
 }
 
 base {
-    archivesName = "${appName}-v${appVersionName}(${gitVersionCode})"
+    archivesName = "${appName}-${gitVersionCode}"
 }
