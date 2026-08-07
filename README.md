@@ -44,12 +44,16 @@ Current offsets in the repo are from the **custom KSU kernel**, which is not the
 
 ## Build
 
+APKs are built automatically by [GitHub Actions](https://github.com/ang3lo-azevedo/ghostlock-nothing/actions) and published as [releases](https://github.com/ang3lo-azevedo/ghostlock-nothing/releases) on every push to `spacewar`.
+
+To build locally:
+
 ```bash
-# Nothing Phone (1)
+# CLI binary
 make TARGET=spacewar ANDROID_NDK_HOME=/path/to/ndk
 
-# Other devices (upstream)
-make ANDROID_NDK_HOME=/path/to/ndk
+# APK (requires Android SDK + NDK 29)
+cd app && ./gradlew :app:assembleRelease
 ```
 
 ## Extracting offsets
