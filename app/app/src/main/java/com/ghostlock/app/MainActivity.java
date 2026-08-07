@@ -329,10 +329,12 @@ public class MainActivity extends Activity {
             statusDot.setBackgroundTintList(ColorStateList.valueOf(color));
         }
 
-        if (statusChip.getBackground() instanceof GradientDrawable) {
-            ((GradientDrawable) statusChip.getBackground().mutate()).setColor(chipBg);
-        } else {
-            statusChip.setBackgroundTintList(ColorStateList.valueOf(chipBg));
+        if (statusChip != null) {
+            if (statusChip.getBackground() instanceof GradientDrawable) {
+                ((GradientDrawable) statusChip.getBackground().mutate()).setColor(chipBg);
+            } else {
+                statusChip.setBackgroundTintList(ColorStateList.valueOf(chipBg));
+            }
         }
     }
 
