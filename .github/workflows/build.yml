@@ -21,6 +21,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
 
       - name: Set up JDK
         uses: actions/setup-java@v5
@@ -49,11 +51,16 @@ jobs:
           ANDROID_NDK_HOME: ${{ env.ANDROID_HOME }}/ndk/29.0.14206865
         run: ./gradlew :app:assembleRelease --no-daemon
 
-      - name: Upload Release APK
-        uses: actions/upload-artifact@v7
+      - name: Get version
+        id: version
+        run: echo "code=$(git rev-list --count HEAD)" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        if: github.event_name == 'push' && github.ref == 'refs/heads/spacewar'
+        uses: softprops/action-gh-release@v2
         with:
-          name: GhostLock-Nothing-release
-          path: |
-            app/app/build/outputs/apk/release/*.apk
-            app/app/build/intermediates/apk/release/*.apk
-          archive: false
+          tag_name: v${{ steps.version.outputs.code }}
+          name: v${{ steps.version.outputs.code }}
+          files: app/app/build/outputs/apk/release/*.apk
+          generate_release_notes: true
+          make_latest: true
