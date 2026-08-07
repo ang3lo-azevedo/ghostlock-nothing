@@ -1,0 +1,59 @@
+name: Build APK
+
+on:
+  push:
+    branches:
+      - main
+      - spacewar
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: "${{ github.workflow }}-${{ github.ref }}"
+  cancel-in-progress: true
+
+jobs:
+  build-apk:
+    name: Build APK
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up JDK
+        uses: actions/setup-java@v5
+        with:
+          java-version: 21
+          distribution: zulu
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Cache NDK
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.ANDROID_HOME }}/ndk/29.0.14206865
+          key: ndk-29.0.14206865-${{ runner.os }}
+
+      - name: Install NDK
+        run: sdkmanager "ndk;29.0.14206865"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v6
+
+      - name: Build Release APK
+        working-directory: app
+        env:
+          ANDROID_NDK_HOME: ${{ env.ANDROID_HOME }}/ndk/29.0.14206865
+        run: ./gradlew :app:assembleRelease --no-daemon
+
+      - name: Upload Release APK
+        uses: actions/upload-artifact@v7
+        with:
+          name: GhostLock-Nothing-release
+          path: |
+            app/app/build/outputs/apk/release/*.apk
+            app/app/build/intermediates/apk/release/*.apk
+          archive: false
