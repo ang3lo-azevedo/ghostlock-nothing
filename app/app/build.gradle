@@ -69,7 +69,7 @@ android {
 
     sourceSets {
         main {
-            java.srcDir(supportedKernelsSrc.get())
+            java.srcDirs = ['src/main/java', supportedKernelsSrc.get()]
         }
     }
 
