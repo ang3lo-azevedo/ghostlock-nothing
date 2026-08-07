@@ -24,6 +24,12 @@ Fork of [JoinChang/ghostlock-oneplus](https://github.com/JoinChang/ghostlock-one
 - [ ] 5.4 source adaptation (configfs, splice, ashmem API differences)
 - [ ] Device test
 
+## Install
+
+[<img src="https://raw.githubusercontent.com/ImranR98/Obtainium/main/assets/graphics/badge_obtainium.png" alt="Get it on Obtainium" height="54">](https://apps.obtainium.imranr.dev/redirect?r=obtainium://add/https://github.com/ang3lo-azevedo/root-my-nothing)
+
+Or download the latest APK from [Releases](https://github.com/ang3lo-azevedo/root-my-nothing/releases).
+
 ## Kernel configs
 
 Two kernel builds with different offsets:
