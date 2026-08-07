@@ -28,17 +28,6 @@ Fork of [JoinChang/ghostlock-oneplus](https://github.com/JoinChang/ghostlock-one
 
 Or download the latest APK from [Releases](https://github.com/ang3lo-azevedo/root-my-nothing/releases).
 
-## Kernel configs
-
-Two kernel builds with different offsets:
-
-| Kernel | Source | Config | GhostLock |
-|--------|--------|--------|-----------|
-| Stock Nothing | [NothingOSS](https://github.com/NothingOSS/android_kernel_msm-5.4_nothing_sm7325) | `lahaina_QGKI.config` + `defconfig` | Vulnerable |
-| Custom KSU | [William24hmar](https://github.com/William24hmar/nothing_android_kernel_sm7325) | `spacewar_defconfig` | Patched |
-
-These have different struct layouts due to different config options. Current offsets target the custom KSU kernel; stock offsets need the kallsyms dump.
-
 ## Build
 
 ```bash
