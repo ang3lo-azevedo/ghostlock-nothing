@@ -1,4 +1,4 @@
-# Root My Nothing
+# <img src="https://raw.githubusercontent.com/ang3lo-azevedo/root-my-nothing/spacewar/app/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png" width="32" height="32"> Root My Nothing
 
 [![Release](https://img.shields.io/github/v/release/ang3lo-azevedo/root-my-nothing?style=flat-square)](https://github.com/ang3lo-azevedo/root-my-nothing/releases/latest)
 
