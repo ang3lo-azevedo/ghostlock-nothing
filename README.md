@@ -2,7 +2,6 @@
 
 <p align="center">
   <a href="https://github.com/ang3lo-azevedo/root-my-nothing/releases/latest"><img src="https://img.shields.io/github/v/release/ang3lo-azevedo/root-my-nothing?style=flat-square" alt="Release"></a>
-  <a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://add/https://github.com/ang3lo-azevedo/root-my-nothing"><img src="https://raw.githubusercontent.com/ImranR98/Obtainium/main/assets/graphics/badge_obtainium.png" alt="Get it on Obtainium" height="24"></a>
 </p>
 
 CVE-2026-43499 (GhostLock) kernel exploit for **Nothing Phone (1)** (Spacewar, SM7325).
