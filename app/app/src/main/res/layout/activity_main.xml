@@ -4,68 +4,9 @@
     android:id="@+id/root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/bg"
+    android:background="@color/black"
     android:orientation="vertical"
-    android:padding="28dp">
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <View
-                android:layout_width="8dp"
-                android:layout_height="8dp"
-                android:background="@drawable/bg_accent_dot" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:fontFamily="sans-serif-medium"
-                android:text="@string/app_name"
-                android:textColor="@color/text_primary"
-                android:textSize="26sp" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="18dp"
-            android:layout_marginTop="10dp"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <View
-                android:id="@+id/statusDot"
-                android:layout_width="6dp"
-                android:layout_height="6dp"
-                android:background="@drawable/bg_status_dot" />
-
-            <TextView
-                android:id="@+id/statusInfo"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:fontFamily="sans-serif"
-                android:text="@string/status_idle"
-                android:textColor="@color/status_idle"
-                android:textSize="13sp" />
-        </LinearLayout>
-    </LinearLayout>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginTop="32dp"
-        android:layout_marginBottom="12dp"
-        android:background="@color/border" />
+    android:padding="24dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -73,17 +14,19 @@
         android:gravity="center_vertical"
         android:orientation="horizontal">
 
+        <View
+            android:layout_width="8dp"
+            android:layout_height="8dp"
+            android:background="@drawable/bg_accent_dot" />
+
         <TextView
-            android:id="@+id/deviceInfo"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:ellipsize="end"
-            android:fontFamily="sans-serif-light"
-            android:lineSpacingExtra="4dp"
-            android:maxLines="2"
-            android:textColor="@color/text_secondary"
-            android:textSize="12sp" />
+            android:layout_marginStart="12dp"
+            android:fontFamily="@font/dot_matrix"
+            android:textSize="32sp"
+            android:textColor="@color/white"
+            android:text="@string/app_name" />
 
         <LinearLayout
             android:id="@+id/kernelChip"
@@ -102,28 +45,65 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="sans-serif-light"
-                android:textSize="11sp" />
+                android:textSize="10sp" />
         </LinearLayout>
     </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="8dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <View
+            android:id="@+id/statusDot"
+            android:layout_width="6dp"
+            android:layout_height="6dp"
+            android:background="@drawable/bg_status_dot" />
+
+        <TextView
+            android:id="@+id/statusInfo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:fontFamily="sans-serif"
+            android:text="@string/status_idle"
+            android:textColor="@color/grey"
+            android:textSize="13sp" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/deviceInfo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="4dp"
+        android:ellipsize="end"
+        android:fontFamily="sans-serif-light"
+        android:maxLines="2"
+        android:textColor="@color/grey"
+        android:textSize="11sp" />
 
     <Button
         android:id="@+id/runButton"
         android:layout_width="match_parent"
         android:layout_height="52dp"
-        android:layout_marginTop="28dp"
+        android:layout_marginTop="32dp"
         android:background="@drawable/bg_button_primary"
         android:fontFamily="sans-serif-medium"
         android:letterSpacing="0.04"
         android:stateListAnimator="@null"
         android:text="@string/action_run"
         android:textAllCaps="true"
-        android:textColor="@color/text_primary"
+        android:textColor="@color/white"
         android:textSize="14sp" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="28dp"
+        android:layout_marginTop="24dp"
         android:layout_weight="1"
         android:background="@drawable/bg_log"
         android:orientation="vertical"
@@ -139,10 +119,10 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:fontFamily="monospace"
+                android:fontFamily="@font/dot_matrix"
                 android:text="@string/log_title"
-                android:textColor="@color/log_title"
-                android:textSize="11sp" />
+                android:textColor="@color/grey"
+                android:textSize="14sp" />
 
             <Button
                 android:id="@+id/copyButton"
@@ -156,7 +136,7 @@
                 android:stateListAnimator="@null"
                 android:text="@string/action_copy"
                 android:textAllCaps="true"
-                android:textColor="@color/log_title"
+                android:textColor="@color/grey"
                 android:textSize="11sp" />
         </LinearLayout>
 

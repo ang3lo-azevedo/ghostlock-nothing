@@ -176,7 +176,8 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        setupSystemBars();
+        getWindow().setStatusBarColor(android.graphics.Color.BLACK);
+        getWindow().setNavigationBarColor(android.graphics.Color.BLACK);
 
         rootView = findViewById(R.id.root);
         deviceInfo = findViewById(R.id.deviceInfo);
@@ -202,26 +203,6 @@ public class MainActivity extends Activity {
     protected void onDestroy() {
         worker.shutdownNow();
         super.onDestroy();
-    }
-
-    private void setupSystemBars() {
-        Window window = getWindow();
-        int barColor = getColor(R.color.status_bar);
-
-        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS | WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
-        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-        window.setStatusBarColor(barColor);
-        window.setNavigationBarColor(getColor(R.color.nav_bar));
-
-        window.setStatusBarContrastEnforced(false);
-        window.setNavigationBarContrastEnforced(false);
-
-        WindowInsetsController controller = window.getInsetsController();
-        if (controller != null) {
-            int lightStatus = getResources().getBoolean(R.bool.window_light_status_bar) ? WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS : 0;
-            int lightNav = getResources().getBoolean(R.bool.window_light_navigation_bar) ? WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS : 0;
-            controller.setSystemBarsAppearance(lightStatus | lightNav, WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS | WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS);
-        }
     }
 
     private void applyWindowInsetsPadding() {
