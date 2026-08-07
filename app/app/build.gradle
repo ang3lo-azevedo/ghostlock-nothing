@@ -53,12 +53,14 @@ tasks.register('generateSupportedKernels') {
 
 android {
     namespace = 'com.ghostlock.app'
-    compileSdk 35
+    compileSdk {
+        version = release(37)
+    }
 
     defaultConfig {
         applicationId "com.ghostlock.app"
-        minSdk 31
-        targetSdk 35
+        minSdk 36
+        targetSdk 37
         versionCode gitVersionCode
         versionName appVersionName
         ndk {
@@ -69,13 +71,13 @@ android {
 
     sourceSets {
         main {
-            java.srcDirs = ['src/main/java', supportedKernelsSrc.get()]
+            java.srcDir(supportedKernelsSrc.get())
         }
     }
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             signingConfig = signingConfigs.debug
         }
