@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">GhostLock</string>
+    <string name="app_name">Root My Nothing</string>
     <string name="status_idle">Idle</string>
     <string name="status_running">Running</string>
     <string name="status_success">Success</string>

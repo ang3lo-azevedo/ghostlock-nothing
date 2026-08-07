@@ -2,7 +2,7 @@ plugins {
     id 'com.android.application'
 }
 
-def appName = 'GhostLock'
+def appName = 'Root My Nothing'
 def appVersionName = '1.0'
 
 def gitVersionCode
@@ -53,14 +53,12 @@ tasks.register('generateSupportedKernels') {
 
 android {
     namespace = 'com.ghostlock.app'
-    compileSdk {
-        version = release(37)
-    }
+    compileSdk 35
 
     defaultConfig {
         applicationId "com.ghostlock.app"
         minSdk 31
-        targetSdk 37
+        targetSdk 35
         versionCode gitVersionCode
         versionName appVersionName
         ndk {
