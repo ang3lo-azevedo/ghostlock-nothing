@@ -5,6 +5,8 @@ on:
     branches:
       - main
       - spacewar
+    paths-ignore:
+      - "README.md"
   pull_request:
     branches:
       - main
