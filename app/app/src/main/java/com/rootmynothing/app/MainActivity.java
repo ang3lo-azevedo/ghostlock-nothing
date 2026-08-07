@@ -62,7 +62,6 @@ public class MainActivity extends Activity {
     private TextView statusInfo;
     private TextView logView;
     private View statusDot;
-    private View statusChip;
     private LinearLayout kernelChip;
     private TextView kernelChipText;
     private ScrollView logScroll;
@@ -183,7 +182,6 @@ public class MainActivity extends Activity {
         deviceInfo = findViewById(R.id.deviceInfo);
         statusInfo = findViewById(R.id.statusInfo);
         statusDot = findViewById(R.id.statusDot);
-        statusChip = findViewById(R.id.statusChip);
         logView = findViewById(R.id.logView);
         logScroll = findViewById(R.id.logScroll);
         runButton = findViewById(R.id.runButton);
@@ -327,14 +325,6 @@ public class MainActivity extends Activity {
             ((GradientDrawable) statusDot.getBackground().mutate()).setColor(color);
         } else {
             statusDot.setBackgroundTintList(ColorStateList.valueOf(color));
-        }
-
-        if (statusChip != null) {
-            if (statusChip.getBackground() instanceof GradientDrawable) {
-                ((GradientDrawable) statusChip.getBackground().mutate()).setColor(chipBg);
-            } else {
-                statusChip.setBackgroundTintList(ColorStateList.valueOf(chipBg));
-            }
         }
     }
 
