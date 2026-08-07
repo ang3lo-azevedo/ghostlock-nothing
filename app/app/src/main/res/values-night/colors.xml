@@ -1,27 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="bg">#FF000000</color>
-    <color name="surface">#FF0D0D0D</color>
-    <color name="text_primary">#FFFFFFFF</color>
-    <color name="text_secondary">#FF888888</color>
+    <color name="surface">#FF0A0A0A</color>
+    <color name="text_primary">#FFFAFAFA</color>
+    <color name="text_secondary">#FF7A7A7A</color>
     <color name="accent">#FFED1C24</color>
-    <color name="accent_pressed">#FFC41820</color>
-    <color name="accent_disabled">#FF4A1C20</color>
+    <color name="accent_pressed">#FFB3151C</color>
+    <color name="accent_disabled">#FF331013</color>
     <color name="border">#FF1A1A1A</color>
-    <color name="divider">#FF1C1C1C</color>
-    <color name="status_idle">#FF888888</color>
-    <color name="status_idle_bg">#FF141414</color>
+    <color name="status_idle">#FF4A4A4A</color>
+    <color name="status_idle_bg">#FF0F0F0F</color>
     <color name="status_running">#FFED1C24</color>
-    <color name="status_running_bg">#FF1A0A0A</color>
+    <color name="status_running_bg">#FF0F0F0F</color>
     <color name="status_success">#FFED1C24</color>
-    <color name="status_success_bg">#FF1A0A0A</color>
+    <color name="status_success_bg">#FF0F0F0F</color>
     <color name="status_error">#FFED1C24</color>
-    <color name="status_error_bg">#FF1A0A0A</color>
-    <color name="log_bg">#FF0D0D0D</color>
+    <color name="status_error_bg">#FF0F0F0F</color>
+    <color name="log_bg">#FF0A0A0A</color>
     <color name="log_border">#FF1A1A1A</color>
-    <color name="log_divider">#1AFFFFFF</color>
-    <color name="log_text">#FFCCCCCC</color>
-    <color name="log_title">#FF888888</color>
+    <color name="log_text">#FFAAAAAA</color>
+    <color name="log_title">#FF555555</color>
     <color name="status_bar">#FF000000</color>
     <color name="nav_bar">#FF000000</color>
 </resources>
