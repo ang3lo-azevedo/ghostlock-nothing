@@ -27,4 +27,4 @@ OFFSETS_ENTRY(
     .off_ashmem_compat_ioctl = 0, .off_ashmem_mmap = 0,
     .off_ashmem_open = 0, .off_ashmem_release = 0,
     .off_ashmem_show_fdinfo = 0,
-)
+),
