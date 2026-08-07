@@ -2,25 +2,7 @@
 
 [![Release](https://img.shields.io/github/v/release/ang3lo-azevedo/root-my-nothing?style=flat-square)](https://github.com/ang3lo-azevedo/root-my-nothing/releases/latest)
 
-CVE-2026-43499 (GhostLock) kernel exploit for **Nothing Phone (1)** (Spacewar, SM7325).
-
-Fork of [JoinChang/ghostlock-oneplus](https://github.com/JoinChang/ghostlock-oneplus). APK builds automatically via GitHub Actions.
-
-## Status
-
-| Device | SoC | Kernel | Status |
-|--------|-----|--------|--------|
-| **Nothing Phone (1)** | SM7325 | 5.4.302 | In progress |
-
-- [x] Kernel confirmed vulnerable (stock Nothing kernel, `remove_waiter` uses `current`)
-- [x] Struct offsets extracted (pahole, `lahaina_QGKI.config`)
-- [x] Device target and offsets (`src/devices/spacewar/`)
-- [x] `kernel_phys_load` from boot.img (`0xa007f000`)
-- [x] APK builds automatically and installs
-- [ ] Kallsyms from stock kernel (need vulnerable boot.img flashed)
-- [ ] `PSELECT_SHIFT` (need stock kernel + kprobes)
-- [ ] 5.4 source adaptation (configfs, splice, ashmem API differences)
-- [ ] Device test
+One-click root for the **Nothing Phone (1)** (Spacewar, SM7325) using the CVE-2026-43499 (GhostLock) kernel exploit. Gains temporary root access and installs KernelSU without unlocking the bootloader.
 
 ## Install
 
@@ -28,25 +10,34 @@ Fork of [JoinChang/ghostlock-oneplus](https://github.com/JoinChang/ghostlock-one
 
 Or download the latest APK from [Releases](https://github.com/ang3lo-azevedo/root-my-nothing/releases).
 
+Requires the [KernelSU manager](https://github.com/tiann/KernelSU/releases) to manage root permissions.
+
+## How it works
+
+**CVE-2026-43499 (GhostLock)** is a use-after-free in the Linux kernel's futex priority-inheritance code, present since kernel 2.6.39. The `pselect6` syscall copies `fd_set` data onto the kernel stack. When combined with the futex PI waiter mechanism, a freed stack frame is reclaimed as an `rt_mutex_waiter`. The rb-tree rebalance during PI chain walk writes controlled values to arbitrary kernel addresses, allowing privilege escalation to root.
+
+The exploit then uses KernelSU's late-load mechanism to install a kernel module, providing persistent root management without modifying the boot image.
+
+## Status
+
+| Device | SoC | Kernel | Status |
+|--------|-----|--------|--------|
+| Nothing Phone (1) | SM7325 | 5.4.302 | In progress |
+
+- [x] Kernel confirmed vulnerable
+- [x] Struct offsets extracted
+- [x] APK builds and installs
+- [ ] Exploit working end-to-end
+
 ## Build
 
 ```bash
 # CLI binary
 make TARGET=spacewar ANDROID_NDK_HOME=/path/to/ndk
 
-# APK (requires Android SDK + NDK 29)
+# APK
 cd app && ./gradlew :app:assembleRelease
 ```
-
-## 5.4 API differences
-
-The exploit source assumes 6.x kernel APIs. Known 5.4 differences:
-
-- `configfs_read_file` / `configfs_write_bin_file` (not `configfs_bin_read_iter` / `configfs_bin_write_iter`)
-- `generic_file_splice_read` (not `copy_splice_read`)
-- C ashmem: direct symbols, not Rust-mangled
-- `ashmem_show_fdinfo` does not exist on 5.4
-- `rt_mutex_waiter` is 0x50 bytes (vs 0x70+ on 6.x)
 
 ## Credits
 
