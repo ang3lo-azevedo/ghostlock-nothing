@@ -18,6 +18,8 @@ jobs:
   build-apk:
     name: Build APK
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -62,5 +64,4 @@ jobs:
           tag_name: v${{ steps.version.outputs.code }}
           name: v${{ steps.version.outputs.code }}
           files: app/app/build/outputs/apk/release/*.apk
-          generate_release_notes: true
           make_latest: true
