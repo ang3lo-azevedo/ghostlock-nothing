@@ -71,13 +71,13 @@ android {
 
     sourceSets {
         main {
-            java.srcDir(supportedKernelsSrc.get())
+            java.srcDirs += supportedKernelsSrc.get()
         }
     }
 
     buildTypes {
         release {
-            minifyEnabled true
+            minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             signingConfig = signingConfigs.debug
         }
