@@ -1,7 +1,7 @@
 # Root My Nothing
 
 [![GitHub release](https://img.shields.io/github/v/release/ang3lo-azevedo/ghostlock-nothing?style=flat-square)](https://github.com/ang3lo-azevedo/ghostlock-nothing/releases/latest)
-[![Obtainium](https://img.shields.io/badge/Obtainium-Add_to_Obtainium-1A1A2E?style=flat-square&logo=github)](https://apps.obtainium.imranr.dev/redirect?r=obtainium://add/https://github.com/ang3lo-azevedo/ghostlock-nothing)
+[<img src="https://raw.githubusercontent.com/ImranR98/Obtainium/main/assets/graphics/badge_obtainium.png" alt="Get it on Obtainium" height="54">](https://apps.obtainium.imranr.dev/redirect?r=obtainium://add/https://github.com/ang3lo-azevedo/ghostlock-nothing)
 
 CVE-2026-43499 (GhostLock) kernel exploit for **Nothing Phone (1)** (Spacewar, SM7325).
 
@@ -25,8 +25,9 @@ Fork of [JoinChang/ghostlock-oneplus](https://github.com/JoinChang/ghostlock-one
 
 ## Download
 
-Get the latest APK from [Releases](https://github.com/ang3lo-azevedo/ghostlock-nothing/releases), or add to [Obtainium](https://obtainium.imranr.dev/) with this URL:
+Get the latest APK from [Releases](https://github.com/ang3lo-azevedo/ghostlock-nothing/releases).
 
+Or add in [Obtainium](https://obtainium.imranr.dev/) using the GitHub URL:
 ```
 https://github.com/ang3lo-azevedo/ghostlock-nothing
 ```
