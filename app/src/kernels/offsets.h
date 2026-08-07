@@ -44,15 +44,6 @@ struct kernel_offsets {
   .task_atomic_flags = 0x5D8, .task_real_cred = 0x818, .task_cred = 0x820,     \
   .task_comm = 0x830, .task_tasks = 0x550, .task_seccomp = 0x8E8
 
-/* Nothing Phone (1) stock kernel — 5.4.302, lahaina_QGKI.config + defconfig */
-#define STRUCT_OFFSETS_5_4_NOTHING_STOCK                                        \
-  .task_prio = 0x6C, .task_normal_prio = 0x74, .task_sched_task_group = 0x330, \
-  .task_pi_lock = 0x85C, .task_pi_waiters = 0x868,                             \
-  .task_pi_top_task = 0x878, .task_pi_blocked_on = 0x880,                      \
-  .task_pid = 0x5C8, .task_tgid = 0x5CC,                                       \
-  .task_atomic_flags = 0x590, .task_real_cred = 0x768, .task_cred = 0x770,     \
-  .task_comm = 0x780, .task_tasks = 0x4C8, .task_seccomp = 0x838
-
 static const struct kernel_offsets known_offsets[] = {
 /* Add new kernels by creating src/kernels/<uname-release>/offsets.h */
 #include "6.6.77-android15-8-g4a507830d890-ab13636293-4k/offsets.h"
