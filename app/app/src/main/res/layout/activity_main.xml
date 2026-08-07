@@ -19,52 +19,26 @@
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="monospace"
-                android:letterSpacing="0.12"
-                android:text="ROOT"
-                android:textColor="@color/text_secondary"
-                android:textSize="11sp" />
-
             <View
-                android:layout_width="6dp"
-                android:layout_height="6dp"
-                android:layout_marginStart="6dp"
+                android:layout_width="8dp"
+                android:layout_height="8dp"
                 android:background="@drawable/bg_accent_dot" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="6dp"
-                android:fontFamily="monospace"
-                android:letterSpacing="0.12"
-                android:text="MY"
+                android:layout_marginStart="10dp"
+                android:fontFamily="sans-serif-medium"
+                android:text="@string/app_name"
                 android:textColor="@color/text_primary"
-                android:textSize="11sp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="monospace"
-                android:letterSpacing="0.12"
-                android:text="NOTHING"
-                android:textColor="@color/text_secondary"
-                android:textSize="11sp" />
+                android:textSize="26sp" />
         </LinearLayout>
-
-        <View
-            android:layout_width="48dp"
-            android:layout_height="1dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginBottom="8dp"
-            android:background="@color/accent" />
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginStart="18dp"
+            android:layout_marginTop="10dp"
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
@@ -82,16 +56,15 @@
                 android:fontFamily="sans-serif"
                 android:text="@string/status_idle"
                 android:textColor="@color/status_idle"
-                android:textSize="11sp"
-                android:letterSpacing="0.04" />
+                android:textSize="13sp" />
         </LinearLayout>
     </LinearLayout>
 
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:layout_marginTop="28dp"
-        android:layout_marginBottom="8dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginBottom="12dp"
         android:background="@color/border" />
 
     <LinearLayout
@@ -110,8 +83,7 @@
             android:lineSpacingExtra="4dp"
             android:maxLines="2"
             android:textColor="@color/text_secondary"
-            android:textSize="11sp"
-            android:letterSpacing="0.02" />
+            android:textSize="12sp" />
 
         <LinearLayout
             android:id="@+id/kernelChip"
@@ -130,8 +102,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="sans-serif-light"
-                android:textSize="10sp"
-                android:letterSpacing="0.02" />
+                android:textSize="11sp" />
         </LinearLayout>
     </LinearLayout>
 
@@ -141,13 +112,13 @@
         android:layout_height="52dp"
         android:layout_marginTop="28dp"
         android:background="@drawable/bg_button_primary"
-        android:fontFamily="sans-serif"
-        android:letterSpacing="0.08"
+        android:fontFamily="sans-serif-medium"
+        android:letterSpacing="0.04"
         android:stateListAnimator="@null"
         android:text="@string/action_run"
         android:textAllCaps="true"
         android:textColor="@color/text_primary"
-        android:textSize="12sp" />
+        android:textSize="14sp" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -169,10 +140,9 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:fontFamily="monospace"
-                android:letterSpacing="0.1"
                 android:text="@string/log_title"
                 android:textColor="@color/log_title"
-                android:textSize="10sp" />
+                android:textSize="11sp" />
 
             <Button
                 android:id="@+id/copyButton"
@@ -187,8 +157,7 @@
                 android:text="@string/action_copy"
                 android:textAllCaps="true"
                 android:textColor="@color/log_title"
-                android:textSize="10sp"
-                android:letterSpacing="0.06" />
+                android:textSize="11sp" />
         </LinearLayout>
 
         <View
@@ -216,8 +185,7 @@
                 android:lineSpacingExtra="1dp"
                 android:textColor="@color/log_text"
                 android:textIsSelectable="true"
-                android:textSize="10sp"
-                android:letterSpacing="0.02" />
+                android:textSize="11sp" />
         </ScrollView>
     </LinearLayout>
 </LinearLayout>
