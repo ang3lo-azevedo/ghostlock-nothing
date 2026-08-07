@@ -6,6 +6,19 @@ Fork of [JoinChang/ghostlock-oneplus](https://github.com/JoinChang/ghostlock-one
 
 CVE-2026-43499 (GhostLock): use-after-free in the Linux kernel rtmutex futex PI code. Affects Linux 2.6.39 through 7.1-rc1.
 
+Confirmed vulnerable in the stock Nothing kernel (`remove_waiter` uses `current` instead of `waiter->task`).
+
+## Kernel configs
+
+The Nothing Phone (1) has two different kernel builds that need separate offsets:
+
+| Kernel | Source | Config | GhostLock |
+|--------|--------|--------|-----------|
+| Stock Nothing | [NothingOSS](https://github.com/NothingOSS/android_kernel_msm-5.4_nothing_sm7325) | `lahaina_QGKI.config` + `defconfig` | Vulnerable |
+| Custom KSU | [William24hmar](https://github.com/William24hmar/nothing_android_kernel_sm7325) | `spacewar_defconfig` | Patched |
+
+These kernels have **different struct layouts** because `spacewar_defconfig` enables `CONFIG_ARM64_SW_TTBR0_PAN`, `CONFIG_SHADOW_CALL_STACK`, KABI reserves, and other features not in the stock config.
+
 ## Devices
 
 | Device | SoC | Kernel | Status |
@@ -17,15 +30,17 @@ CVE-2026-43499 (GhostLock): use-after-free in the Linux kernel rtmutex futex PI 
 
 ### Nothing Phone (1) status
 
-- [x] Kernel confirmed vulnerable
-- [x] Struct offsets extracted (pahole, 5.4 spacewar_defconfig)
+- [x] Kernel confirmed vulnerable (stock Nothing kernel)
+- [x] Struct offsets for stock kernel (pahole, `lahaina_QGKI.config`)
 - [x] Device target and offsets (`src/devices/spacewar/`)
-- [x] Kallsyms offsets (dumped from live device)
-- [x] kernel_phys_load confirmed (0xa007f000)
-- [ ] pselect stack layout (kprobes set up, needs PI futex trigger)
-- [ ] Source adaptation for 5.4
+- [x] kernel_phys_load from boot.img (0xa007f000)
+- [ ] Kallsyms from **stock** kernel (need vulnerable boot.img flashed on device)
+- [ ] PSELECT_SHIFT (need stock kernel running for kprobes)
+- [ ] Source adaptation for 5.4 (configfs, splice, ashmem API differences)
 - [ ] Device test
 - [ ] APK wrapper app (base on [ghostlock-app](https://github.com/YuKongA/ghostlock-app))
+
+Current offsets in the repo are from the **custom KSU kernel**, which is not the target. The target is the stock Nothing kernel. `STRUCT_OFFSETS_5_4` in `src/devices/offsets.h` holds the custom values — needs replacing with stock values once verified.
 
 ## Build
 
@@ -37,36 +52,71 @@ make TARGET=spacewar ANDROID_NDK_HOME=/path/to/ndk
 make ANDROID_NDK_HOME=/path/to/ndk
 ```
 
-## Kallsyms and pselect layout
+## Extracting offsets
 
-Needs a running device with root (KernelSU works):
+### Struct offsets (pahole)
+
+Clone the kernel source, run `make prepare`, then compile a dummy object and run pahole:
 
 ```bash
-# Dump kallsyms for global symbol offsets
-adb shell su -c 'cat /proc/kallsyms' > kallsyms.txt
+git clone --depth 1 --branch sm7325/s \
+  https://github.com/NothingOSS/android_kernel_msm-5.4_nothing_sm7325
+
+cd android_kernel_msm-5.4_nothing_sm7325
+export ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu-
+scripts/kconfig/merge_config.sh arch/arm64/configs/defconfig \
+  arch/arm64/configs/vendor/lahaina_QGKI.config
+make olddefconfig prepare
+
+aarch64-linux-gnu-gcc -std=gnu11 -D__KERNEL__ \
+  -include include/generated/autoconf.h \
+  -I. -Iinclude -Iarch/arm64/include \
+  -nostdinc -g -c -o dummy.o dummy.c
+
+pahole -C task_struct dummy.o
+pahole -C rt_mutex_waiter dummy.o
+pahole -C mm_struct dummy.o | grep owner
+```
+
+### Kallsyms (global symbols)
+
+From the device running the **stock** (vulnerable) kernel:
+
+```bash
+# First disable kptr_restrict
+adb shell su -c 'echo 0 > /proc/sys/kernel/kptr_restrict'
+adb shell su -c 'cat /proc/kallsyms' > kallsyms_stock.txt
 
 # kernel_phys_load
 adb shell su -c 'grep -i "Kernel code" /proc/iomem'
-# subtract 0x10000 (_stext - _text)
-
-# PSELECT_SHIFT via kprobes
-adb shell su -c 'echo "p:ds do_select fdsin=+0(%x1)" >> /sys/kernel/tracing/kprobe_events'
-adb shell su -c 'echo "p:rw rt_mutex_wait_proxy_lock waiter=%x2" >> /sys/kernel/tracing/kprobe_events'
-# trigger FUTEX_CMP_REQUEUE_PI, then:
-#   PSELECT_SHIFT = ((waiter & 0x3fff) - (fdsin & 0x3fff)) / 8 - 2
+# Subtract PE header size (0x1000) to get _text physical load address
 ```
 
-## Adding devices
+### PSELECT_SHIFT (pselect stack layout)
 
-Extract offsets from boot.img:
+On the device running the stock kernel:
 
 ```bash
-python -c "import struct; d=open('boot.img','rb').read(); open('kernel','wb').write(d[4096:4096+struct.unpack_from('<I',d,8)[0]])"
-python tools/extract_target.py   # kallsyms
-python tools/extract_btf.py kernel   # struct fields (if CONFIG_DEBUG_INFO_BTF=y)
+adb shell su -c 'echo p:ds do_select fdsin=+0(%x1) > /sys/kernel/tracing/kprobe_events'
+adb shell su -c 'echo p:rw rt_mutex_wait_proxy_lock waiter=%x2 >> /sys/kernel/tracing/kprobe_events'
+adb shell su -c 'echo 1 | tee /sys/kernel/tracing/events/kprobes/ds/enable'
+adb shell su -c 'echo 1 | tee /sys/kernel/tracing/events/kprobes/rw/enable'
+
+# Trigger FUTEX_CMP_REQUEUE_PI, then read trace:
+adb shell su -c 'cat /sys/kernel/tracing/trace'
+
+# PSELECT_SHIFT = ((waiter & 0x3fff) - (fdsin & 0x3fff)) / 8 - 2
 ```
 
-Create `src/devices/<name>/offsets.h` and `src/devices/<name>/target.h`. Use `STRUCT_OFFSETS_5_4`, `STRUCT_OFFSETS_6_6`, or `STRUCT_OFFSETS_6_12` based on kernel version.
+### 5.4 API differences
+
+The exploit source (`src/core/`) assumes 6.x kernel APIs. Known differences on 5.4:
+
+- `configfs_read_file` / `configfs_write_bin_file` (not `configfs_bin_read_iter` / `configfs_bin_write_iter`)
+- `generic_file_splice_read` (not `copy_splice_read`)
+- C ashmem (not Rust) — function names are direct symbols, not Rust-mangled
+- `ashmem_show_fdinfo` does not exist on 5.4
+- `rt_mutex_waiter` is 0x50 bytes (vs 0x70+ on 6.x)
 
 ## Credits
 
@@ -74,7 +124,6 @@ Create `src/devices/<name>/offsets.h` and `src/devices/<name>/target.h`. Use `ST
 - [NebuSec/CyberMeowfia](https://github.com/NebuSec/CyberMeowfia)
 - [YuKongA/ghostlock-app](https://github.com/YuKongA/ghostlock-app)
 - [BuSung-dev/Root-My-Galaxy](https://github.com/BuSung-dev/Root-My-Galaxy)
-- [BuSung-dev/Root-My-Galaxy-Payloads](https://github.com/BuSung-dev/Root-My-Galaxy-Payloads)
 - [NothingOSS/android_kernel_msm-5.4_nothing_sm7325](https://github.com/NothingOSS/android_kernel_msm-5.4_nothing_sm7325)
 - [William24hmar/nothing_android_kernel_sm7325](https://github.com/William24hmar/nothing_android_kernel_sm7325)
 
