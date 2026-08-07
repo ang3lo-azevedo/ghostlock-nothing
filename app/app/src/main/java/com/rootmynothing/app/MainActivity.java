@@ -1,4 +1,4 @@
-package com.ghostlock.app;
+package com.rootmynothing.app;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;

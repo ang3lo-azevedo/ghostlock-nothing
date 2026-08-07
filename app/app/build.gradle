@@ -21,7 +21,7 @@ tasks.register('generateSupportedKernels') {
     def offsets = fileTree(rootProject.projectDir) {
         include 'src/kernels/*/offsets.h'
     }
-    def outFile = supportedKernelsSrc.map { it.file('com/ghostlock/app/SupportedKernels.java') }
+    def outFile = supportedKernelsSrc.map { it.file('com/rootmynothing/app/SupportedKernels.java') }
     inputs.files(offsets)
     outputs.file(outFile)
     doLast {
@@ -34,7 +34,7 @@ tasks.register('generateSupportedKernels') {
         }
         names = names.unique()
         def sb = new StringBuilder()
-        sb << "package com.ghostlock.app;\n\n"
+        sb << "package com.rootmynothing.app;\n\n"
         sb << "/** Generated from kernel offset headers; do not edit. */\n"
         sb << "public final class SupportedKernels {\n"
         sb << "    public static final String[] UNAMES = {\n"
@@ -52,13 +52,13 @@ tasks.register('generateSupportedKernels') {
 }
 
 android {
-    namespace = 'com.ghostlock.app'
+    namespace = 'com.rootmynothing.app'
     compileSdk {
         version = release(37)
     }
 
     defaultConfig {
-        applicationId "com.ghostlock.app"
+        applicationId "com.rootmynothing.app"
         minSdk 36
         targetSdk 37
         versionCode gitVersionCode
