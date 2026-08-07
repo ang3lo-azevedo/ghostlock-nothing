@@ -1,0 +1,110 @@
+plugins {
+    id 'com.android.application'
+}
+
+def appName = 'GhostLock'
+def appVersionName = '1.0'
+
+def gitVersionCode
+try {
+    def proc = ['git', 'rev-list', '--count', 'HEAD'].execute(null, project.projectDir)
+    proc.waitFor()
+    gitVersionCode = proc.text.trim().toInteger()
+} catch (Exception e) {
+    println "warning: git rev-list failed (${e.message}); versionCode falls back to 1"
+    gitVersionCode = 1
+}
+
+def supportedKernelsSrc = layout.buildDirectory.dir('generated/source/supportedKernels')
+
+tasks.register('generateSupportedKernels') {
+    def offsets = fileTree(rootProject.projectDir) {
+        include 'src/kernels/*/offsets.h'
+    }
+    def outFile = supportedKernelsSrc.map { it.file('com/ghostlock/app/SupportedKernels.java') }
+    inputs.files(offsets)
+    outputs.file(outFile)
+    doLast {
+        def names = []
+        offsets.each { f ->
+            def matcher = f.text =~ /OFFSETS_ENTRY\(\s*"([^"]+)"/
+            while (matcher.find()) {
+                names << matcher.group(1)
+            }
+        }
+        names = names.unique()
+        def sb = new StringBuilder()
+        sb << "package com.ghostlock.app;\n\n"
+        sb << "/** Generated from kernel offset headers; do not edit. */\n"
+        sb << "public final class SupportedKernels {\n"
+        sb << "    public static final String[] UNAMES = {\n"
+        names.each { name ->
+            def escaped = name.replace('\\', '\\\\').replace('"', '\\"')
+            sb << "        \"${escaped}\",\n"
+        }
+        sb << "    };\n\n"
+        sb << "    private SupportedKernels() {}\n"
+        sb << "}\n"
+        def file = outFile.get().asFile
+        file.parentFile.mkdirs()
+        file.text = sb.toString()
+    }
+}
+
+android {
+    namespace = 'com.ghostlock.app'
+    compileSdk {
+        version = release(37)
+    }
+
+    defaultConfig {
+        applicationId "com.ghostlock.app"
+        minSdk 36
+        targetSdk 37
+        versionCode gitVersionCode
+        versionName appVersionName
+        ndk {
+            //noinspection ChromeOsAbiSupport
+            abiFilters "arm64-v8a"
+        }
+    }
+
+    sourceSets {
+        main {
+            java.srcDir(supportedKernelsSrc.get())
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig = signingConfigs.debug
+        }
+        debug {
+            minifyEnabled false
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    enableKotlin = false
+
+    packaging {
+        jniLibs {
+            useLegacyPackaging = true
+        }
+    }
+}
+
+tasks.named('preBuild') {
+    dependsOn(rootProject.tasks.named('prepareGhostlockJniLibs'))
+    dependsOn(tasks.named('generateSupportedKernels'))
+}
+
+base {
+    archivesName = "${appName}-v${appVersionName}(${gitVersionCode})"
+}

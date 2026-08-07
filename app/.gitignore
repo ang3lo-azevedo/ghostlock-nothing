@@ -1,0 +1,11 @@
+/ghostlock
+local.properties
+.gradle/
+.idea/
+*.iml
+app/build/
+libghostlock.so
+build/
+.DS_Store
+__pycache__
+/devices
