@@ -1,8 +1,6 @@
 # Root My Nothing
 
-<p align="center">
-  <a href="https://github.com/ang3lo-azevedo/root-my-nothing/releases/latest"><img src="https://img.shields.io/github/v/release/ang3lo-azevedo/root-my-nothing?style=flat-square" alt="Release"></a>
-</p>
+[![Release](https://img.shields.io/github/v/release/ang3lo-azevedo/root-my-nothing?style=flat-square)](https://github.com/ang3lo-azevedo/root-my-nothing/releases/latest)
 
 CVE-2026-43499 (GhostLock) kernel exploit for **Nothing Phone (1)** (Spacewar, SM7325).
 
